@@ -19,6 +19,7 @@ djangorestframework = "*"
 django-filter = "*"
 waitress = "*"
 whitenoise = "*"
+pytz = "*"
 
 [requires]
 python_version = "3.6"

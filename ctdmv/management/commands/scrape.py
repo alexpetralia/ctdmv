@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 from datetime import datetime
+from pytz import timezone
 import pandas as pd
 import requests
 import time
@@ -16,12 +17,13 @@ def extract_wait_times(branch, data):
     data.update({data['_EVENTTARGET']: branch})
     response = requests.post(URL, data=data)
     soup = BeautifulSoup(response.content, 'html5lib')
-    table = soup.select('table[id*="WaitTimes"]')[0]
     try:
+        table = soup.select('table[id*="WaitTimes"]')[0]
+    except IndexError:
+        return pd.DataFrame()
+    else:
         df = pd.read_html(str(table))[0]
         return df
-    except Exception:
-        return pd.DataFrame()
 
 def scrape_branches() -> list:
     """Scrapes list of branches & builds required payload from website"""
@@ -70,7 +72,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         # Only run between 7am and 5pm, skip Sunday
-        now = datetime.now()
+        now = datetime.now(timezone('America/New_York'))
         if (7 <= now.hour <= 17) and now.isoweekday() != 7:
             write_to_db(scrape_branches())
 
