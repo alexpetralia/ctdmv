@@ -17,6 +17,7 @@ html5lib = "*"
 lxml = "*"
 djangorestframework = "*"
 django-filter = "*"
+waitress = "*"
 
 [requires]
 python_version = "3.6"
