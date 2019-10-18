@@ -1,4 +1,5 @@
 from bs4 import BeautifulSoup
+from datetime import datetime
 import pandas as pd
 import requests
 import time
@@ -16,8 +17,11 @@ def extract_wait_times(branch, data):
     response = requests.post(URL, data=data)
     soup = BeautifulSoup(response.content, 'html5lib')
     table = soup.select('table[id*="WaitTimes"]')[0]
-    df = pd.read_html(str(table))[0]
-    return df
+    try:
+        df = pd.read_html(str(table))[0]
+        return df
+    except Exception:
+        return pd.DataFrame()
 
 def scrape_branches() -> list:
     """Scrapes list of branches & builds required payload from website"""
@@ -44,7 +48,15 @@ def write_to_db(data) -> None:
     """Accepts a tuple of (branch, pd.DataFrame) and writes each row into
     the database as a WaitEntry object"""
     for branch, df in data:
+        if df.empty:
+            continue
+
         for _, row in df.drop(0).iterrows():
+            # Skip if any entries contain the word 'closed'
+            L = lambda x: str(x).lower()
+            if any('closed' in x for x in (L(row[1]), L(row[2]))):
+                   continue
+
             WaitEntry.factory(
                 branch=branch,
                 service=row[0],
@@ -57,14 +69,13 @@ class Command(BaseCommand):
     help = "Scrape all DMV entries"""
 
     def handle(self, *args, **kwargs):
-        write_to_db(scrape_branches())
+        # Only run between 7am and 5pm, skip Sunday
+        now = datetime.now()
+        if (7 <= now.hour <= 17) and now.isoweekday() != 7:
+            write_to_db(scrape_branches())
 
-        # Heroku Scheduler only works at resolution of 10 minutes,
-        # so we want to run _twice_ (i.e. 5 mins) during each interval
-        time.sleep(5 * 60)
-        write_to_db(scrape_branches())
-
-
-# Schedule (daytime only)
-# Catch errors (if no data, skip snapshot)
-# Email errors
+            # Heroku Scheduler only works at resolution of 10 minutes,
+            # so we want to run _twice_ (i.e. 5 mins) during each interval
+            print("Waiting 5 minutes...")
+            time.sleep(5 * 60)
+            write_to_db(scrape_branches())

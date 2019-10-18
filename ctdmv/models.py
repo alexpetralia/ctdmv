@@ -13,7 +13,7 @@ class WaitEntry(models.Model):
 
     class Meta:
         unique_together = ('creation_date_utc', 'branch', 'service')
-        ordering = ('creation_date_utc', 'branch', 'service')
+        ordering = ('-creation_date_utc', 'branch', 'service')
 
     @classmethod
     def extract_mins(cls, str_: str) -> int:
@@ -39,10 +39,19 @@ class WaitEntry(models.Model):
         )
         return entry
 
+    def __str__(self):
+        return f"Wait time of {self.wait_time_str} for {self.service.name} \
+                at {self.branch.name}, {self.creation_date_utc}"
 
 class Branch(models.Model):
     name = models.CharField(max_length=60, null=False, blank=False, unique=True)
 
+    def __str__(self):
+        return self.name
+
 
 class Service(models.Model):
     name = models.CharField(max_length=60, null=False, blank=False, unique=True)
+
+    def __str__(self):
+        return self.name

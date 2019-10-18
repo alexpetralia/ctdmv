@@ -17,7 +17,7 @@ import environ
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get("DEBUG") == "True"
 
 # Define environment
 env = environ.Env()
@@ -25,7 +25,7 @@ if DEBUG:
     env.read_env(os.path.join(BASE_DIR, ".env"))
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env['SECRET_KEY']
+SECRET_KEY = env('SECRET_KEY')
 
 ALLOWED_HOSTS = ['*']
 
@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'django_filters',
     'ctdmv',
 ]
 
@@ -118,3 +120,9 @@ STATIC_URL = '/static/'
 
 # Email logging
 ADMINS = ('alex@alexpetralia.com', )
+SERVER_EMAIL = 'alex@alexpetralia.com'
+EMAIL_HOST = 'smtp.sendgridnet'
+EMAIL_HOST_USER = env('SENDGRID_USERNAME')
+EMAIL_HOST_PASSWORD = env('SENDGRID_PASSWORD')
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
