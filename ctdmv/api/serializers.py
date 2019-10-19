@@ -41,11 +41,17 @@ class AggWaitEntrySerializer(object):
     def data(self):
         """Returns aggregated dataset based on frequency"""
         df = self.qs.to_dataframe()
+
+        # Localize timezone from UTC
+        idx = pd.DatetimeIndex(df['creation_date_utc']).tz_convert('US/Eastern')
+        df = df.set_index(idx).drop(columns='creation_date_utc').reset_index()
+
+        # Resample to 5 minutes, then take average over a time slice
         dfx = df.groupby([
             pd.Grouper(key='creation_date_utc', freq='5T'), 'branch', 'service'
-        ]).mean().reset_index()
+        ]).last().reset_index()
         dfy = df.groupby(self._get_grouped_col(dfx)).mean()
         dfz = dfy[self.__class__.DATA_COLS]
 
-        # Convert to JSON for datetime->str conversion, then back to JSON
+        # Convert to str(JSON) for datetime->str conversion, then back to JSON
         return json.loads(dfz.to_json(date_format='iso'))
