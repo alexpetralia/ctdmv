@@ -22,8 +22,7 @@ def extract_wait_times(branch, data):
     except IndexError:
         return pd.DataFrame()
     else:
-        df = pd.read_html(str(table))[0]
-        return df
+        return pd.read_html(str(table))[0]
 
 def scrape_branches() -> list:
     """Scrapes list of branches & builds required payload from website"""
@@ -55,13 +54,13 @@ def write_to_db(data) -> None:
 
         for _, row in df.drop(0).iterrows():
             # Skip if any entries contain the word 'closed'
-            L = lambda x: str(x).lower()
+            L = lambda x: str(x).strip().lower()
             if any('closed' in x for x in (L(row[1]), L(row[2]))):
                    continue
 
             WaitEntry.factory(
                 branch=branch,
-                service=row[0],
+                service=row[0].strip(),
                 wait_time_str=row[1],
                 num_waiting=row[2],
             )

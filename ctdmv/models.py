@@ -1,5 +1,6 @@
 import re
 
+from django_pandas.managers import DataFrameManager
 from django.db import models
 
 class WaitEntry(models.Model):
@@ -10,6 +11,8 @@ class WaitEntry(models.Model):
     wait_time_mins = models.IntegerField(null=False, blank=False)
     num_waiting = models.IntegerField(null=False, blank=False)
     creation_date_utc = models.DateTimeField(auto_now_add=True)
+
+    objects = DataFrameManager()
 
     class Meta:
         unique_together = ('creation_date_utc', 'branch', 'service')
