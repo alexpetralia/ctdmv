@@ -21,6 +21,7 @@ waitress = "*"
 whitenoise = "*"
 pytz = "*"
 django-pandas = "*"
+django-cors-headers = "*"
 
 [requires]
 python_version = "3.6"
