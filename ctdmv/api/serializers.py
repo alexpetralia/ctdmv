@@ -20,7 +20,7 @@ class WaitEntrySerializer(serializers.ModelSerializer):
 class AggWaitEntrySerializer(object):
     """Custom serializer for returning a single aggregated response"""
 
-    DATA_COLS = ['wait_time_mins', 'num_waiting', 'creation_date_utc']
+    DATA_COLS = ['wait_time_mins', 'num_waiting']
 
     def __init__(self, qs, freq):
         self.qs = qs
@@ -40,13 +40,12 @@ class AggWaitEntrySerializer(object):
     @property
     def data(self):
         """Returns aggregated dataset based on frequency"""
-        df = self.qs.to_dataframe()[self.__class__.DATA_COLS]
-        dfx = df.groupby(self._get_grouped_col(df)).mean()
-
-        # If grouping by time, slide to nearest 5-minute interval
-        if hasattr(dfx.index, 'levels') and len(dfx.index.levels) > 1:
-            idx = pd.Int64Index([5 * round(x / 5) for x in dfx.index.levels[1]])
-            dfx.index = dfx.index.set_levels(idx, level=1)
+        df = self.qs.to_dataframe()
+        dfx = df.groupby([
+            pd.Grouper(key='creation_date_utc', freq='5T'), 'branch', 'service'
+        ]).mean().reset_index()
+        dfy = df.groupby(self._get_grouped_col(dfx)).mean()
+        dfz = dfy[self.__class__.DATA_COLS]
 
         # Convert to JSON for datetime->str conversion, then back to JSON
-        return json.loads(dfx.to_json(date_format='iso'))
+        return json.loads(dfz.to_json(date_format='iso'))
