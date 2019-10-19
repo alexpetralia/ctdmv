@@ -12,6 +12,8 @@ class OptionalSlashRouter(SimpleRouter):
 
 router = OptionalSlashRouter()
 router.register('wait_times', viewsets.WaitEntryViewSet)
+router.register('branches', viewsets.BranchViewSet)
+router.register('services', viewsets.ServiceViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),

@@ -3,7 +3,7 @@ import pandas as pd
 
 from rest_framework import serializers
 
-from ctdmv.models import WaitEntry
+from ctdmv.models import WaitEntry, Service, Branch
 
 
 class WaitEntrySerializer(serializers.ModelSerializer):
@@ -55,3 +55,17 @@ class AggWaitEntrySerializer(object):
 
         # Convert to str(JSON) for datetime->str conversion, then back to JSON
         return json.loads(dfz.to_json(date_format='iso'))
+
+
+class BranchSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Branch
+        fields = '__all__'
+
+
+class ServiceSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Service
+        fields = '__all__'

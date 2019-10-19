@@ -3,9 +3,10 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 
-from ctdmv.models import WaitEntry
+from ctdmv.models import WaitEntry, Service, Branch
 from ctdmv.api.serializers import (
-    WaitEntrySerializer, AggWaitEntrySerializer
+    WaitEntrySerializer, AggWaitEntrySerializer,
+    ServiceSerializer, BranchSerializer
 )
 from ctdmv.api.filters import WaitEntryFilter
 from ctdmv.api.pagination import StandardResultsSetPagination
@@ -35,3 +36,17 @@ class WaitEntryViewSet(viewsets.ModelViewSet):
 
         freq = self.kwargs['freq']
         return Response(AggWaitEntrySerializer(qs, freq).data)
+
+
+class ServiceViewSet(viewsets.ModelViewSet):
+    """ViewSet for all services"""
+
+    queryset = Service.objects.all()
+    serializer_class = ServiceSerializer
+
+
+class BranchViewSet(viewsets.ModelViewSet):
+    """ViewSet for all branches"""
+
+    queryset = Branch.objects.all()
+    serializer_class = BranchSerializer
