@@ -123,9 +123,10 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'dist'),
-)
+STATICFILES_DIR = os.path.join(BASE_DIR, 'dist')
+STATICFILES_DIRS = (STATICFILES_DIR, )
+os.makedirs(STATIC_ROOT, exist_ok=True)
+os.makedirs(STATICFILES_DIR, exist_ok=True)
 
 # Email logging
 ADMINS = ('alex@alexpetralia.com', )
