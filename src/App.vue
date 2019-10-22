@@ -9,7 +9,12 @@
       </div>
       <div class="menu">
         <ul class="menu__buttons">
-          <li v-for="branch in branches" :key="branch.id" @click="toggleActive(branch)" :class="[branch.active ? 'menu__button_active' : 'menu__buttuon_inactive']">{{ branch.name }}</li>
+          <li
+            v-for="branch in branches"
+            v-show="branch.active || branches.every(x => !x.active)"
+            :key="branch.id"
+            @click="toggleActive(branch)">
+            {{ branch.name }}</li>
         </ul>
       </div>
       <div class="main">
@@ -26,6 +31,18 @@
               <option value="Monthly">Over a month</option>
               <option value="Weekly">Over a week</option>
               <option value="Daily">Over a day</option>
+            </select>
+          </div>
+          <div v-show="filters.freq === 'Daily'">
+            <label for="weekday">Day of week</label>
+            <select class="filters__input" type='text' name='weekday' v-model="filters.weekday">
+              <option value="1">Monday</option>
+              <option value="2">Tuesday</option>
+              <option value="3">Wednesday</option>
+              <option value="4">Thursday</option>
+              <option value="5">Friday</option>
+              <option value="6">Saturday</option>
+              <option value="7">Sunday</option>
             </select>
           </div>
           <div>
@@ -70,6 +87,7 @@ export default {
                 st_date: '',
                 end_date: '',
                 freq: 'Monthly',
+                weekday: '',
             },
             results: {},
             data: {},
@@ -95,21 +113,24 @@ export default {
         buildUrl() {      
             let active_branch = (this.branches.filter(x => x.active)[0] || '').name || ''
             let freq = this.filters.freq.toLowerCase() || 'monthly'
-            return `${this.BASE_API}/wait_times/${freq}/?branch=${active_branch}&service=${this.filters.service}` + 
-                `&date_after=${this.filters.st_date}&date_before=${this.filters.end_date}`
+            let service = this.filters.service === 'ALL SERVICES' ? '' : this.filters.service
+            let weekday = this.filters.freq !== 'Daily' ? '' : this.filters.weekday
+            return `${this.BASE_API}/wait_times/${freq}/?branch=${active_branch}&service=${service}` + `&date_after=${this.filters.st_date}&date_before=${this.filters.end_date}&weekday=${weekday}`
         }
     },
     methods: {
         getServices() {
             axios.get(`${this.BASE_API}/services`)
                 .then(response => response.data).then(results => {
-                    this.services = results.map(x => x.name); 
+                    let result_names = results.map(x => x.name)
+                    result_names.unshift('ALL SERVICES')
+                    this.services = result_names
                 })
         },
         getBranches() {
             axios.get(`${this.BASE_API}/branches`).then(response => response.data)
                 .then(results => {
-                    this.branches = results.map(obj => ({...obj, active: false}))
+                    this.branches = results.map(obj => ({...obj, active: true}))
                 })
         },
         toggleActive(item) {
@@ -118,6 +139,7 @@ export default {
                 let branch = this.branches[idx]
                 if (branch.name != item.name) { branch.active = false }
             }
+
             this.requestData()
         }, 
         convertAxisLabels(wait_times) {
@@ -142,7 +164,7 @@ export default {
                     else if (x[x.length - 1] == '2') {
                         return x + "nd"
                     }
-                    else if (x[x.length - 1] == '3') {
+                   else if (x[x.length - 1] == '3') {
                         return x + "rd"
                     }
                     else {
@@ -155,6 +177,8 @@ export default {
                     let time = x.toString().substring(1, x.length - 1).replace(',', ':')
                     if (time.includes(":0")) {
                         time += '0'
+                    } else if (time.substring(time.length - 2, time.length) === ":5") {
+                        time = time.substring(0, time.length - 2) + ":05"
                     }
                     return time
                 })
@@ -171,7 +195,7 @@ export default {
                         labels: labels,
                         datasets: [
                             {
-                                label: "Wait times (mins)",
+                                label: "Wait time (mins)",
                                 data: data,
                                 backgroundColor: "rgba(153, 102, 255, .2)",
                                 borderColor: "rgb(153, 102, 255)",
@@ -188,126 +212,121 @@ export default {
 
 <style scoped>
 :root {
-
+    
 }
 
 *, *::before, *::after {
-  margin: 0;
-  box-sizing: border-box;
-  font-family: Roboto, Nunito, Open Sans, sans serif;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: Roboto, Nunito, Open Sans, sans serif;
 }
 
 .container {
-  display: grid;
-  max-width: 80vw;
-  margin: 0 auto;
-  grid-template-columns: minmax(0, 1fr);
-  justify-items: center;
+    display: grid;
+    max-width: 80vw;
+    margin: 0 auto;
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
 }
 
 .header {
-  padding: 1rem 2rem;
+    padding: 1rem 2rem;
 }
 
 .header__title {
-  color: black;
-  font-size: 1.6rem;
-  padding: 1rem 2rem;
-  border-radius: 5px;
-  letter-spacing: .05rem;
-  text-align: center;
+    color: black;
+    font-size: 1.6rem;
+    padding: 1rem 2rem;
+    border-radius: 5px;
+    letter-spacing: .05rem;
+    text-align: center;
 }
 
 .header__title a {
-  text-decoration: none;
-  color: black;
+    text-decoration: none;
+    color: black;
 }
 
 .header__subtitle {
-  text-align: center;
-  line-height: 1.4rem;
-  color: rgba(0, 0, 0, .8);
-  font-style: italic;
+    text-align: center;
+    line-height: 1.4rem;
+    color: rgba(0, 0, 0, .8);
+    font-style: italic;
 }
 
 .menu__buttons {
-  display: flex;
-  justify-content: space-evenly;
-  flex-wrap: wrap;
-  list-style: none;
-  padding: .5rem 1rem;
-  background-color: rgba(0, 0, 0, .05);
-  border-radius: 10px;
+    display: flex;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+    list-style: none;
+    padding: .5rem 1rem;
+    background-color: rgba(255, 255, 204, .3);
+    border-radius: 10px;
 }
 
 .menu__buttons li {
-  color: #fff;
-  background-color: rgba(0, 0, 220, .7);
-  font-size: .8rem;
-  text-transform: lowercase;
-  border-radius: 10px;
-  padding: .5rem;
-  margin: .3rem .2rem;
-  transition: transform .2s;
+    color: #fff;
+    background-color: rgba(0, 0, 220, .7);
+    font-size: .8rem;
+    text-transform: lowercase;
+    border-radius: 10px;
+    padding: .5rem;
+    margin: .3rem .2rem;
+    transition: transform .2s;
 }
 
 .menu__buttons li:hover {
-  background-color: rgba(0, 0, 139, .75);
-  transform: scale(1.05);
-  cursor: pointer;
-}
-
-.menu_buttons li.menu__button_active {
-  background-color: (0, 0, 139, .75);
-  transform: scale(1.05);
-  cursor: pointer;
+    background-color: rgba(0, 0, 139, .75);
+    transform: scale(1.05);
+    cursor: pointer;
 }
 
 .footer {
-  display: flex;
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  justify-content: center;
-  align-items: center;
-  padding: 0 1rem;
-  background-color: black;
-  min-height: 1.5rem;
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    padding: 0 1rem;
+    background-color: black;
+    min-height: 1.5rem;
 }
 
 .footer p {
-  font-family: Segoe UI;
-  font-size: .8rem;
-  color: white;
+    font-family: Segoe UI;
+    font-size: .8rem;
+    color: white;
 }
 
 .footer > p > a {
-  text-decoration: none;
-  color: lightblue;
+    text-decoration: none;
+    color: lightblue;
 }
 
 .filters {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 0 auto;
 }
 
 .filters > div {
-  padding: .25rem .5rem
+    padding: .25rem .5rem
 }
 
 .filters label {
-  color: gray;
-  font-size: .7rem;
+    color: gray;
+    font-size: .7rem;
 }
 
 .filters__input {
-  display: block;
-  padding: .5rem 1rem;
-  border-radius: 5px;
-  border: 1px solid lightgray;
-  background-color: rgba(255, 255, 204, .1);
+    display: block;
+    padding: .5rem 1rem;
+    border-radius: 5px;
+    border: 1px solid lightgray;
+    background-color: rgba(255, 255, 204, .1);
 }
 
 .main {
