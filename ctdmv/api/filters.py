@@ -19,4 +19,4 @@ class WaitEntryFilter(FilterSet):
         """
         Filters QuerySet by day of week (int). Add 2 to convert to ISO weekday
         """
-        return queryset.filter(creation_date_utc__week_day=value + 2)
+        return queryset.filter(creation_date_utc__week_day=value + 1)

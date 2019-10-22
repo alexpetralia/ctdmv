@@ -5,16 +5,18 @@
         <div class="header__title">
           <a href="/">CT DMV Wait Times &#x1F698;</a>
         </div>
-        <div class="header__subtitle">When's the best time to go to DMV in Connecticut?</div>
+        <div class="header__subtitle">When's the best time to go to DMV in Connecticut? <a href="https://www.dmvselfservice.ct.gov/NemoService.aspx" target="_blank" class="source">(source)</a></div>
       </div>
       <div class="menu">
         <ul class="menu__buttons">
+          <transition-group name="fade">
           <li
             v-for="branch in branches"
             v-show="branch.active || branches.every(x => !x.active)"
             :key="branch.id"
             @click="toggleActive(branch)">
             {{ branch.name }}</li>
+          </transition-group>
         </ul>
       </div>
       <div class="main">
@@ -36,6 +38,7 @@
           <div v-show="filters.freq === 'Daily'">
             <label for="weekday">Day of week</label>
             <select class="filters__input" type='text' name='weekday' v-model="filters.weekday">
+              <option value="0">(All days)</option>
               <option value="1">Monday</option>
               <option value="2">Tuesday</option>
               <option value="3">Wednesday</option>
@@ -114,7 +117,7 @@ export default {
             let active_branch = (this.branches.filter(x => x.active)[0] || '').name || ''
             let freq = this.filters.freq.toLowerCase() || 'monthly'
             let service = this.filters.service === 'ALL SERVICES' ? '' : this.filters.service
-            let weekday = this.filters.freq !== 'Daily' ? '' : this.filters.weekday
+            let weekday = (this.filters.freq !== 'Daily' || this.filters.weekday == 0) ? '' : this.filters.weekday
             return `${this.BASE_API}/wait_times/${freq}/?branch=${active_branch}&service=${service}` + `&date_after=${this.filters.st_date}&date_before=${this.filters.end_date}&weekday=${weekday}`
         }
     },
@@ -247,6 +250,12 @@ export default {
     color: black;
 }
 
+.source {
+    text-decoration: none;
+    color: blue;
+    font-size: .6rem;
+}
+
 .header__subtitle {
     text-align: center;
     line-height: 1.4rem;
@@ -265,6 +274,7 @@ export default {
 }
 
 .menu__buttons li {
+    display: inline-flex;
     color: #fff;
     background-color: rgba(0, 0, 220, .7);
     font-size: .8rem;
@@ -295,7 +305,7 @@ export default {
 }
 
 .footer p {
-    font-family: Segoe UI;
+    font-family: Segoe UI, Arial;
     font-size: .8rem;
     color: white;
 }
@@ -330,6 +340,6 @@ export default {
 }
 
 .main {
-  margin-bottom: 2rem;
+    margin-bottom: 2rem;
 }
 </style>
