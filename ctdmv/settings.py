@@ -54,6 +54,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.cache.UpdateCacheMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.cache.FetchFromCacheMiddleware',
 ]
 
 CORS_ORIGIN_ALLOW_ALL = True
@@ -83,6 +86,23 @@ WSGI_APPLICATION = 'ctdmv.wsgi.application'
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
 DATABASES = {'default': env.db()}
+
+
+# Cache
+
+CACHE_BACKEND = (
+    'redis_cache.RedisCache' if DEBUG
+    else 'django.core.cache.backends.dummy.DummyCache'
+)
+CACHES = {
+    'default': {
+        'BACKEND': CACHE_BACKEND,
+        'LOCATION': env('REDIS_URL', default='')
+    }
+}
+CACHE_MIDDLEWARE_ALIAS = 'default'
+CACHE_MIDDLEWARE_SECONDS = 60 * 5
+CACHE_MIDDLEWARE_KEY_PREFIX = ''
 
 
 # Password validation

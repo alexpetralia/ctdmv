@@ -22,6 +22,8 @@ whitenoise = "*"
 pytz = "*"
 django-pandas = "*"
 django-cors-headers = "*"
+redis = "*"
+django-redis-cache = "*"
 
 [requires]
 python_version = "3.6"
