@@ -21,7 +21,7 @@ class WaitEntry(models.Model):
     @classmethod
     def extract_mins(cls, str_: str) -> int:
         """Converts string wait time to integer"""
-        groups = re.search('(\d+) hours (\d+) minute.', str_)
+        groups = re.search('(\d+) hour?. (\d+) minute?.', str_)
         if not groups:
             return 0
         return int(groups[1]) * 60 + int(groups[2])
