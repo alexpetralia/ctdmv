@@ -148,7 +148,9 @@ STATICFILES_DIRS = (STATICFILES_DIR, )
 os.makedirs(STATIC_ROOT, exist_ok=True)
 os.makedirs(STATICFILES_DIR, exist_ok=True)
 
+
 # Email logging
+
 ADMINS = ('alex@alexpetralia.com', )
 SERVER_EMAIL = 'alex@alexpetralia.com'
 EMAIL_HOST = 'smtp.sendgridnet'
@@ -156,3 +158,9 @@ EMAIL_HOST_USER = env('SENDGRID_USERNAME')
 EMAIL_HOST_PASSWORD = env('SENDGRID_PASSWORD')
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
+
+
+# SSL
+
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
