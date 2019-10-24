@@ -3,7 +3,7 @@
     <div class="container">
       <div class="header">
         <div class="header__title">
-          <a href="/">CT DMV Wait Times &#x1F698;</a>
+         <a href="/">CT DMV Wait Times &#x1F698;</a>
         </div>
         <div class="header__subtitle">When's the best time to go to DMV in Connecticut? <a href="https://www.dmvselfservice.ct.gov/NemoService.aspx" target="_blank" class="source">(source)</a></div>
       </div>
@@ -66,8 +66,14 @@
       </div>
     </div>
     <div class="social">
-        <a class="twitter-share-button" href="https://twitter.com/intent/tweet">Tweet</a>
-        <a class="github-button" href="https://github.com/alexpetralia/ctdmv" aria-label="Follow @alexpetralia on GitHub">View code</a>
+        <div>
+
+            <a class="twitter-share-button" href="https://twitter.com/intent/tweet">Tweet</a>
+        </div>
+        <div>
+            <a class="github-button" href="https://github.com/alexpetralia/ctdmv" aria-label="Follow @alexpetralia on GitHub">View code</a>
+
+        </div>
     </div>
     <div class="footer">
       <p>Conceived during a long wait at the DMV by <a href="https://alexpetralia.com" target="_blank">@alexpetralia</a>.</p>
@@ -313,10 +319,12 @@ export default {
 }
 
 .social {
+    position: fixed;
     display: flex;
+    width: 100%;
     justify-content: space-between;
-    position: relative;
-    bottom: 1rem;
+    padding: 0 1rem 0 0;
+    bottom: 1.5rem;
 }
 
 .footer {
