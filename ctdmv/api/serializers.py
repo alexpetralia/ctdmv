@@ -13,7 +13,7 @@ class WaitEntrySerializer(serializers.ModelSerializer):
     class Meta:
         model = WaitEntry
         fields = (
-            'id', 'branch', 'service', 'wait_time_mins', 'creation_date_utc'
+            'id', 'branch', 'service', 'wait_time_mins', 'num_waiting', 'creation_date_utc'
         )
 
 
@@ -39,7 +39,7 @@ class AggWaitEntrySerializer(object):
 
     @property
     def data(self):
-        """Returns aggregated dataset based on frequency"""
+        """Returns aggregated dataset based on frequenchttps://ctdmv.herokuapp.com/api/num_waiting/daily/?branch=&service=&date_after=&date_before=&weekday=y"""
         df = self.qs.to_dataframe()
 
         # Localize timezone from UTC
@@ -51,6 +51,11 @@ class AggWaitEntrySerializer(object):
             pd.Grouper(key='creation_date_utc', freq='5T'), 'branch', 'service'
         ]).last().reset_index()
         dfy = df.groupby(self._get_grouped_col(dfx)).mean()
+
+        # Increment weekdays to ISO values, if weekday is selected
+        if self.freq == 'weekly':
+            dfy.index += 1
+
         dfz = dfy[self.__class__.DATA_COLS]
 
         # Convert to str(JSON) for datetime->str conversion, then back to JSON

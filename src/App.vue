@@ -13,7 +13,7 @@
           <li
             v-for="branch in branches"
             v-show="branch.active || branches.every(x => !x.active)"
-            :key="branch.id"
+            :key="branch.name"
             @click="toggleActive(branch)">
             {{ branch.name }}</li>
           </transition-group>
@@ -56,13 +56,18 @@
             <label for="freq">Data end</label>
             <input class="filters__input" type='date' name='end_date' v-model="filters.end_date">
           </div>
+          <div class="metricToggle" @click="toggleMetric">
+              <p>{{ this.metric.includes("num") ? "Number of people" : "Wait time" }}</p>
+          </div>
         </div>
-        <!-- <p>{{ buildUrl }}</p>
-        <p>{{ results.wait_time_mins }}</p> -->
         <div class="chart">
           <BarChart :chart-data="data" :options="options"> </BarChart>
         </div>
       </div>
+    </div>
+    <div class="social">
+        <a class="twitter-share-button" href="https://twitter.com/intent/tweet">Tweet</a>
+        <a class="github-button" href="https://github.com/alexpetralia/ctdmv" aria-label="Follow @alexpetralia on GitHub">View code</a>
     </div>
     <div class="footer">
       <p>Conceived during a long wait at the DMV by <a href="https://alexpetralia.com" target="_blank">@alexpetralia</a>.</p>
@@ -84,7 +89,11 @@ export default {
         return {
             BASE_API: 'https://ctdmv.herokuapp.com/api',
             services: [],
-            branches: [],
+            branches: [{
+                name: '',
+                active: true
+            }],
+            metric: 'wait_time_mins',
             filters: {
                 service: 'ALL SERVICES',
                 st_date: '',
@@ -97,6 +106,9 @@ export default {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                legend: {
+                    position: 'bottom'
+                },
                 scales: {
                     yAxes: [{
                         ticks: {
@@ -133,20 +145,26 @@ export default {
         getBranches() {
             axios.get(`${this.BASE_API}/branches`).then(response => response.data)
                 .then(results => {
-                    this.branches = results.map(obj => ({...obj, active: true}))
+                    this.branches = results.map(obj => ({...obj, active: false}))
                 })
         },
         toggleActive(item) {
             item.active = !item.active;
             for (let idx in this.branches) {
                 let branch = this.branches[idx]
-                if (branch.name != item.name) { branch.active = false }
+                if (branch.name != item.name) { 
+                    branch.active = false 
+                }
             }
-
             this.requestData()
         }, 
-        convertAxisLabels(wait_times) {
-            const labels = Object.keys(wait_times)
+        toggleMetric() {
+            let metrics = ['wait_time_mins', 'num_waiting']
+            this.metric = this.metric.includes("time") ? metrics[1] : metrics[0]
+            this.requestData()
+        },
+        convertAxisLabels(metric) {
+            const labels = Object.keys(metric)
             if (this.filters.freq === 'Weekly') {
                 const weekday_map = {
                     '1': 'Monday',
@@ -191,14 +209,15 @@ export default {
             axios.get(this.buildUrl).then(response => response.data)
                 .then(response => {
                     this.results = response
-                    let wait_times = response.wait_time_mins || {}
-                    let labels = this.convertAxisLabels(wait_times)
-                    let data = Object.values(wait_times).map(x => Math.round(x * 100)/100)
+                    let metric = response[this.metric] || {}
+                    let axis_name = this.metric.includes("time") ? "Average wait time (mins)" : "Average number of people waiting"
+                    let labels = this.convertAxisLabels(metric)
+                    let data = Object.values(metric).map(x => Math.round(x * 100)/100)
                     this.data = {
                         labels: labels,
                         datasets: [
                             {
-                                label: "Wait time (mins)",
+                                label: axis_name,
                                 data: data,
                                 backgroundColor: "rgba(153, 102, 255, .2)",
                                 borderColor: "rgb(153, 102, 255)",
@@ -264,17 +283,19 @@ export default {
 }
 
 .menu__buttons {
-    display: flex;
-    justify-content: space-evenly;
-    flex-wrap: wrap;
     list-style: none;
     padding: .5rem 1rem;
     background-color: rgba(255, 255, 204, .3);
     border-radius: 10px;
 }
 
+.menu__buttons span {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
 .menu__buttons li {
-    display: inline-flex;
     color: #fff;
     background-color: rgba(0, 0, 220, .7);
     font-size: .8rem;
@@ -289,6 +310,13 @@ export default {
     background-color: rgba(0, 0, 139, .75);
     transform: scale(1.05);
     cursor: pointer;
+}
+
+.social {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    bottom: 1rem;
 }
 
 .footer {
@@ -337,6 +365,18 @@ export default {
     border-radius: 5px;
     border: 1px solid lightgray;
     background-color: rgba(255, 255, 204, .1);
+}
+
+.filters .metricToggle {
+    align-self: flex-end;
+    margin: 1rem;
+    background-color: darkgreen;
+    font-size: .6em;
+    text-align: center;
+    color: white;
+    border-radius: 10px;
+    box-shadow: 0px 3px lightgray;
+    cursor: pointer;
 }
 
 .main {
