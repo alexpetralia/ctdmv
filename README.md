@@ -53,7 +53,7 @@ If you would like to download the raw data, you can query the API directly. Ther
 
 `format` (csv, json)
 
-`page_size` (0 to 10,000)
+`page_size` (0 to 5,000)
 
 .
 
