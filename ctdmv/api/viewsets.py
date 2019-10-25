@@ -10,9 +10,10 @@ from ctdmv.api.serializers import (
 )
 from ctdmv.api.filters import WaitEntryFilter
 from ctdmv.api.pagination import StandardResultsSetPagination
+from ctdmv.api.renderers import CSVFileMixin
 
 
-class WaitEntryViewSet(viewsets.ModelViewSet):
+class WaitEntryViewSet(CSVFileMixin, viewsets.ModelViewSet):
     """ViewSet for all wait entries"""
 
     queryset = WaitEntry.objects.all()
@@ -22,17 +23,16 @@ class WaitEntryViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend, )
     http_method_names = ["get"]
 
+    FREQUENCIES = ('daily', 'weekly', 'monthly')
+
     @action(detail=False, url_path=r'(?P<freq>[a-z]+)')
     def aggregate(self, request, pk=None, **kwargs):
+        """Return aggregated responses"""
         # Operate on filtered QuerySet
-        qs = self.filter_queryset(self.queryset)
+        qs = self.filter_queryset(self.get_queryset())
 
-        if not qs:
+        if not qs or self.kwargs.get('freq', '') not in self.FREQUENCIES:
             return Response()
-
-        # Return default QS if `freq` is invalid
-        if self.kwargs.get('freq', '') not in ('daily', 'weekly', 'monthly'):
-            return Response(self.get_serializer(qs).data)
 
         freq = self.kwargs['freq']
         return Response(AggWaitEntrySerializer(qs, freq).data)

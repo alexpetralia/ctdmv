@@ -4,12 +4,16 @@
 
 I noticed the [CT DMV website](https://www.dmvselfservice.ct.gov/NemoService.aspx) offers wait time information but it doesn't do it in a time series format. This means we can only see a "snapshot" of wait times at the current moment, but can't evaluate any patterns over time. I built a simple app to store this wait time data over time, serve it over an API , and visualize it on a webapp.
 
+.
+
 ### Tech stack
 
 * Deployment: Heroku
 * Data scraping: `requests` job every 5 minutes via Heroku Scheduler
 * Backend: Python `django` serving REST APIs via djangorestframework
 * Frontend: `Vue.js`, `Chart.js`
+
+.
 
 ### API
 
@@ -40,6 +44,26 @@ All API endpoints accept the following filters as GET parameters:
 .
 
 Example query: `https://ctdmv.herokuapp.com/api/wait_times/monthly/?branch=bridgeport&service=registration transactions&date_after=2019-10-10&date_before=2019-10-24&weekday=3`
+
+.
+
+### Raw data
+
+If you would like to download the raw data, you can query the API directly. There are two additional GET parameters you can use:
+
+`format` (csv, json)
+
+`page_size` (0 to 100,000)
+
+.
+
+Example query: `https://ctdmv.herokuapp.com/api/wait_times/?branch=danbury&service=dealer transactions&date_after=2019-10-10&date_before=2019-10-24&format=csv&page_size=100000`
+
+(Note the final two parameters)
+
+All timestamps are returned in UTC time (generally this is 4 or 5 hours before UTC time).
+
+.
 
 ### License
 

@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "2a7e7f8ccfacb395e7f320aac340545a75be3b01cc3ac1c28be0f9bff6515ee6"
+            "sha256": "793b5ce1f760b7bfb8177c724c066c0e6db8396e42fd3a7e2b9ba4579ac83e64"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -108,6 +108,13 @@
             ],
             "index": "pypi",
             "version": "==3.10.3"
+        },
+        "djangorestframework-csv": {
+            "hashes": [
+                "sha256:2f008b20a44f2d3c37835ea5b5ddfe19f54394f07b9cb267c616a917a7f7e27c"
+            ],
+            "index": "pypi",
+            "version": "==2.1.0"
         },
         "html5lib": {
             "hashes": [
@@ -370,6 +377,12 @@
                 "sha256:d023ee369ddd2763310e4c3eae1ff649689440d4ae59d7485eb4cfbbe3e359f7"
             ],
             "version": "==4.3.3"
+        },
+        "unicodecsv": {
+            "hashes": [
+                "sha256:018c08037d48649a0412063ff4eda26eaa81eff1546dbffa51fa5293276ff7fc"
+            ],
+            "version": "==0.14.1"
         },
         "urllib3": {
             "hashes": [

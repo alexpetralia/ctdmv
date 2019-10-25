@@ -13,7 +13,8 @@ class WaitEntrySerializer(serializers.ModelSerializer):
     class Meta:
         model = WaitEntry
         fields = (
-            'id', 'branch', 'service', 'wait_time_mins', 'num_waiting', 'creation_date_utc'
+            'id', 'branch', 'service', 'creation_date_utc',
+            'wait_time_mins', 'num_waiting'
         )
 
 

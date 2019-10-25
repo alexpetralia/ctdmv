@@ -388,6 +388,6 @@ export default {
 }
 
 .main {
-    margin-bottom: 2rem;
+    margin-bottom: 5rem;
 }
 </style>

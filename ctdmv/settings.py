@@ -153,7 +153,7 @@ os.makedirs(STATICFILES_DIR, exist_ok=True)
 
 ADMINS = ('alex@alexpetralia.com', )
 SERVER_EMAIL = 'alex@alexpetralia.com'
-EMAIL_HOST = 'smtp.sendgridnet'
+EMAIL_HOST = 'smtp.sendgrid.net'
 EMAIL_HOST_USER = env('SENDGRID_USERNAME')
 EMAIL_HOST_PASSWORD = env('SENDGRID_PASSWORD')
 EMAIL_PORT = 587
@@ -165,3 +165,15 @@ EMAIL_USE_TLS = True
 if not DEBUG:
     SECURE_SSL_REDIRECT = True
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+
+# Renderers
+
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+        'rest_framework_csv.renderers.PaginatedCSVRenderer',
+
+    ]
+}
