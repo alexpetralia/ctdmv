@@ -53,9 +53,9 @@ def write_to_db(data) -> None:
             continue
 
         for _, row in df.drop(0).iterrows():
-            # Skip if any entries contain the word 'closed'
+            # Skip if any entries contain the word 'closed', not avail
             L = lambda x: str(x).strip().lower()
-            if any('closed' in x for x in (L(row[1]), L(row[2]))):
+            if any(x in L(row[1]) for x in ('closed', 'not available')):
                    continue
 
             WaitEntry.factory(
