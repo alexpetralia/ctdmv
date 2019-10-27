@@ -181,27 +181,29 @@ export default {
                     '6': 'Saturday',
                     '7': 'Sunday',
                 }
-                return labels.map(x => weekday_map[x])
+                return labels.map(x => weekday_map[parseInt(x)])
             }
             else if (this.filters.freq === "Monthly") {
                 return labels.map(x => {
-                    if (x[x.length - 1] == '1') {
-                        return x + "st"
+                    let val = parseInt(x).toString()
+                    if (val[val.length -1] == '1') {
+                        return val + "st"
                     }
-                    else if (x[x.length - 1] == '2') {
-                        return x + "nd"
+                    else if (val[val.length - 1] == '2') {
+                        return val + "nd"
                     }
-                   else if (x[x.length - 1] == '3') {
-                        return x + "rd"
+                   else if (val[val.length - 1] == '3') {
+                        return val + "rd"
                     }
                     else {
-                        return x + "th"
+                        return val + "th"
                     }
                 })
             }
             else {
                 return labels.map(x => {
-                    let time = x.toString().substring(1, x.length - 1).replace(',', ':')
+                    let time = x.toString().replace(/\.0/g, '')
+                    time = time.substring(1, time.length - 1).replace(',', ':')
                     if (time.includes(":0")) {
                         time += '0'
                     } else if (time.substring(time.length - 2, time.length) === ":5") {
