@@ -57,7 +57,7 @@ If you would like to download the raw data, you can query the API directly. Ther
 
 .
 
-Example query: `https://ctdmv.herokuapp.com/api/wait_times/?branch=danbury&service=dealer transactions&date_after=2019-10-10&date_before=2019-10-24&format=csv&page_size=100000`
+Example query: `https://ctdmv.herokuapp.com/api/wait_times/?branch=danbury&service=dealer transactions&date_after=2019-10-10&date_before=2019-10-24&format=csv&page_size=5000`
 
 (Note the final two parameters)
 
