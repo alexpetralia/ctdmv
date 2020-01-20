@@ -25,6 +25,10 @@ class WaitEntryViewSet(CSVFileMixin, viewsets.ModelViewSet):
 
     FREQUENCIES = ('daily', 'weekly', 'monthly')
 
+    def get_queryset(self):
+        """Ignore services that were scraped erroneously"""
+        return super().get_queryset().filter(service__pk__lte=6)
+
     @action(detail=False, url_path=r'(?P<freq>[a-z]+)')
     def aggregate(self, request, pk=None, **kwargs):
         """Return aggregated responses"""
@@ -41,7 +45,7 @@ class WaitEntryViewSet(CSVFileMixin, viewsets.ModelViewSet):
 class ServiceViewSet(viewsets.ModelViewSet):
     """ViewSet for all services"""
 
-    queryset = Service.objects.all()
+    queryset = Service.objects.filter(pk__lte=6)
     serializer_class = ServiceSerializer
 
 
